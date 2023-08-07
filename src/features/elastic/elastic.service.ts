@@ -1,12 +1,13 @@
 import { Client } from '@elastic/elasticsearch';
 import { Injectable } from '@nestjs/common';
+import { OpenAIChatMessageDtoType } from 'src/schema';
 import { getProcessEnv } from 'src/utils/env';
 
 @Injectable()
 export class ElasticService extends Client {
   constructor() {
     super({
-      node: getProcessEnv('ES_URL'),
+      node: getProcessEnv('ES_URL', 'http://localhost:9200'),
     });
   }
 
@@ -15,7 +16,12 @@ export class ElasticService extends Client {
       index: `chat-${chatID}`,
     });
   }
-  async createNewMessage(chatID: string, message: string) {
+  async deleteChat(chatID: string) {
+    await this.indices.delete({
+      index: `chat-${chatID}`,
+    });
+  }
+  async createNewMessage(chatID: string, message: OpenAIChatMessageDtoType) {
     const timestamp = new Date().getTime();
     await this.index({
       index: `chat-${chatID}`,
@@ -36,5 +42,11 @@ export class ElasticService extends Client {
       },
     });
     return documents.hits.hits;
+  }
+  async deleteMessage(chatID: string, messageID: string) {
+    await this.delete({
+      index: `chat-${chatID}`,
+      id: messageID,
+    });
   }
 }

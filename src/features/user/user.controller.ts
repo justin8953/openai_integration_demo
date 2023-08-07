@@ -10,7 +10,6 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { ChatTypeService } from '../chat-type/chat-type.service';
 import { Prisma, User } from '@prisma/client';
 import { UserDtoType } from 'src/schema';
 import { generateHash } from '../auth/utils';
@@ -18,10 +17,7 @@ import { JwtAuthGuard } from '../auth/jwt.guard';
 
 @Controller('user')
 export class UserController {
-  constructor(
-    private readonly userService: UserService,
-    private readonly chatTypeService: ChatTypeService,
-  ) {}
+  constructor(private readonly userService: UserService) {}
 
   // Retrieve a single user
   @UseGuards(JwtAuthGuard)

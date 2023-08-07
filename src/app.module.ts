@@ -3,9 +3,9 @@ import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './features/user/user.module';
-import { ChatTypeModule } from './features/chat-type/chat-type.module';
 import { AuthModule } from './features/auth/auth.module';
 import { OpenaiModule } from './features/openai/openai.module';
+import { ChatModule } from './features/chat/chat.module';
 
 @Module({
   imports: [
@@ -14,7 +14,7 @@ import { OpenaiModule } from './features/openai/openai.module';
     }),
     AuthModule,
     UserModule,
-    ChatTypeModule,
+    ChatModule,
     OpenaiModule,
   ],
   controllers: [AppController],
