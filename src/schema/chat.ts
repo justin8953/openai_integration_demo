@@ -31,7 +31,7 @@ export const ChatDto = OpenAIChatDto.extend({
 export type ChatDtoType = z.infer<typeof ChatDto>;
 
 export const ChatMessageDto = z.object({
-  messages: z.array(z.string()).nullable(),
+  message: z.string().nullable(),
 });
 
 export type ChatMessageDtoType = z.infer<typeof ChatMessageDto>;
