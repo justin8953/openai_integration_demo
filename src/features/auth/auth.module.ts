@@ -7,7 +7,7 @@ import { LocalStrategy } from './local.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './jwt.strategy';
 import { DatabaseModule } from '../database/database.module';
-import { getProcessEnv } from 'src/utils/env';
+import { getProcessEnv, getSecret } from 'src/utils/env';
 
 @Module({
   imports: [
@@ -15,7 +15,7 @@ import { getProcessEnv } from 'src/utils/env';
     DatabaseModule,
     PassportModule,
     JwtModule.register({
-      secret: getProcessEnv('SECRET'),
+      secret: getSecret(),
       signOptions: { expiresIn: '150s' },
     }),
   ],

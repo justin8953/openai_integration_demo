@@ -1,9 +1,30 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
 import { Prisma, User } from '@prisma/client';
+import { getProcessEnv } from 'src/utils/env';
+import { generateHash } from '../auth/utils';
 
 @Injectable()
-export class UserService {
+export class UserService implements OnModuleInit {
+  async onModuleInit() {
+    const email = getProcessEnv('ADMIN_EMAIL', 'admin@example.com');
+    const user = await this.database.user.findUnique({
+      where: { email: email },
+    });
+    if (!user) {
+      console.debug('create admin user');
+      const password = getProcessEnv('ADMIN_PASSWORD', 'example');
+      const passwordHash = await generateHash(password);
+      await this.database.user.create({
+        data: {
+          email: email,
+          firstName: 'Admin',
+          lastName: 'User',
+          passwordHash: passwordHash,
+        },
+      });
+    }
+  }
   constructor(private database: DatabaseService) {}
   // Retrieve a single user
   async user(
