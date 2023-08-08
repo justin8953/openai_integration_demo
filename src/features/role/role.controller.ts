@@ -12,7 +12,7 @@ import {
 import { RoleService } from './role.service';
 import { JwtAuthGuard } from '../auth/jwt.guard';
 import { Permission, Prisma, Role } from '@prisma/client';
-import { RoleDtoType } from 'src/schema/role';
+import { PermissionDtoType, RoleDtoType } from 'src/schema/role';
 
 @Controller('roles')
 export class RoleController {
@@ -60,18 +60,8 @@ export class RoleController {
   @UseGuards(JwtAuthGuard)
   @Post()
   async createRole(@Body() role: RoleDtoType): Promise<Role> {
-    const permissions = await this.roleService.permissions({
-      where: {
-        name: {
-          in: role.permissions,
-        },
-      },
-    });
     return this.roleService.createRole({
       name: role.name,
-      permissions: {
-        connect: permissions,
-      },
     });
   }
 
@@ -86,22 +76,12 @@ export class RoleController {
     if (!roleExists) {
       throw new Error('Role not found');
     }
-    const permissions = await this.roleService.permissions({
-      where: {
-        name: {
-          in: role.permissions,
-        },
-      },
-    });
     return this.roleService.updateRole({
       where: {
         id: roleId,
       },
       data: {
         name: role.name,
-        permissions: {
-          connect: permissions,
-        },
       },
     });
   }
@@ -112,6 +92,79 @@ export class RoleController {
   async deleteRole(@Param('roleId') roleId: string): Promise<Role> {
     return this.roleService.deleteRole({
       id: roleId,
+    });
+  }
+
+  // Add permissions to a role
+  @UseGuards(JwtAuthGuard)
+  @Post(':roleId/permissions')
+  async addPermissionsToRole(
+    @Param('roleId') roleId: string,
+    @Body()
+    body: {
+      permissions: PermissionDtoType[];
+    },
+  ): Promise<Role> {
+    const newPermission = await this.roleService.permissions({
+      where: {
+        name: {
+          in: body.permissions,
+        },
+        roles: {
+          none: {
+            roleId,
+          },
+        },
+      },
+    });
+
+    return this.roleService.updateRole({
+      where: {
+        id: roleId,
+      },
+      data: {
+        permissions: {
+          create: newPermission.map((permission) => ({
+            permission: {
+              connect: permission,
+            },
+          })),
+        },
+      },
+    });
+  }
+
+  // Add permissions to a role
+  @UseGuards(JwtAuthGuard)
+  @Post(':roleId/permissions/delete')
+  async deletePermissionsToRole(
+    @Param('roleId') roleId: string,
+    @Body()
+    body: {
+      permissions: PermissionDtoType[];
+    },
+  ): Promise<Role> {
+    const existedPermission = await this.roleService.permissions({
+      where: {
+        name: {
+          in: body.permissions,
+        },
+        roles: {
+          some: {
+            roleId,
+          },
+        },
+      },
+      include: {
+        roles: true,
+      },
+    });
+
+    return this.roleService.updateRole({
+      where: {
+        id: roleId,
+      },
+      data: {},
     });
   }
 }

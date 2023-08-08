@@ -1,60 +1,16 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
-import { Permissions } from 'src/schema/role';
-import { DefaultRoles } from './role.constatns';
 import { Prisma, Role } from '@prisma/client';
 
 @Injectable()
-export class RoleService implements OnModuleInit {
-  async onModuleInit() {
-    Permissions.forEach(async (permission) => {
-      const match = await this.database.permission.findFirst({
-        where: {
-          name: permission,
-        },
-      });
-      if (!match) {
-        console.log('create new permission', permission);
-        await this.database.permission.create({
-          data: {
-            name: permission,
-          },
-        });
-      }
-    });
-    DefaultRoles.forEach(async (role) => {
-      const match = await this.database.role.findFirst({
-        where: {
-          name: role.name,
-        },
-      });
-      if (!match) {
-        console.log('create new role', role.name);
-        const permissions = await this.database.permission.findMany({
-          where: {
-            name: {
-              in: role.permissions,
-            },
-          },
-        });
-        await this.database.role.create({
-          data: {
-            name: role.name,
-            default: true,
-            permissions: {
-              connect: permissions,
-            },
-          },
-        });
-      }
-    });
-  }
+export class RoleService {
   constructor(private readonly database: DatabaseService) {}
 
   // Retrieve permissions
   async permissions(params: {
     skip?: number;
     take?: number;
+    include?: Prisma.PermissionInclude;
     cursor?: Prisma.PermissionWhereUniqueInput;
     where?: Prisma.PermissionWhereInput;
     orderBy?: Prisma.PermissionOrderByWithRelationInput;

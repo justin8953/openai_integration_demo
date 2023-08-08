@@ -7,6 +7,7 @@ import { AuthModule } from './features/auth/auth.module';
 import { OpenaiModule } from './features/openai/openai.module';
 import { ChatModule } from './features/chat/chat.module';
 import { RoleModule } from './features/role/role.module';
+import { DatabaseModule } from './features/database/database.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { RoleModule } from './features/role/role.module';
     RoleModule,
     UserModule,
     ChatModule,
+    DatabaseModule,
     OpenaiModule,
   ],
   controllers: [AppController],

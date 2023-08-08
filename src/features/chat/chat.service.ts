@@ -6,28 +6,7 @@ import { DatabaseService } from '../database/database.service';
 import { Prisma } from '@prisma/client';
 
 @Injectable()
-export class ChatService implements OnModuleInit {
-  async onModuleInit() {
-    const { data } = await this.openaiService.listModels();
-    data.data.forEach(async (model) => {
-      const existedModel = await this.databaseService.openAIModel.findFirst({
-        where: {
-          id: model.id,
-        },
-      });
-      if (!existedModel) {
-        console.log('create new model', model.id);
-        await this.databaseService.openAIModel.create({
-          data: {
-            id: model.id,
-            object: model.object,
-            created: model.created,
-            owned_by: model.owned_by,
-          },
-        });
-      }
-    });
-  }
+export class ChatService {
   constructor(
     private readonly elasticService: ElasticService,
     private readonly openaiService: OpenaiService,

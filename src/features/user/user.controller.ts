@@ -15,7 +15,7 @@ import { UserDtoType } from 'src/schema';
 import { generateHash } from '../auth/utils';
 import { JwtAuthGuard } from '../auth/jwt.guard';
 import { RoleService } from '../role/role.service';
-import { DefaultUser } from '../role/role.constatns';
+import { DefaultUser } from '../role/role.constants';
 
 @Controller('users')
 export class UserController {
