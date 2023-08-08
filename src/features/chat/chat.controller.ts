@@ -3,7 +3,7 @@ import { ChatService } from './chat.service';
 import { JwtAuthGuard } from '../auth/jwt.guard';
 import { ChatMessageDtoType } from 'src/schema';
 
-@Controller('chat')
+@Controller('chats')
 export class ChatController {
   constructor(private readonly chatService: ChatService) {}
   @UseGuards(JwtAuthGuard)
