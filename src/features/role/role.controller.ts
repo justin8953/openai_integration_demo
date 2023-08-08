@@ -155,9 +155,6 @@ export class RoleController {
           },
         },
       },
-      include: {
-        roles: true,
-      },
     });
 
     return this.roleService.updateRole({
