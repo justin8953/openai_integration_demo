@@ -164,7 +164,13 @@ export class RoleController {
       where: {
         id: roleId,
       },
-      data: {},
+      data: {
+        permissions: {
+          deleteMany: existedPermission.map((permission) => ({
+            permissionId: permission.id,
+          })),
+        },
+      },
     });
   }
 }
