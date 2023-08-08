@@ -8,6 +8,7 @@ import { OpenaiModule } from './features/openai/openai.module';
 import { ChatModule } from './features/chat/chat.module';
 import { RoleModule } from './features/role/role.module';
 import { DatabaseModule } from './features/database/database.module';
+import { ChatModelModule } from './features/chat-model/chat-model.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { DatabaseModule } from './features/database/database.module';
     RoleModule,
     UserModule,
     ChatModule,
+    ChatModelModule,
     DatabaseModule,
     OpenaiModule,
   ],

@@ -6,31 +6,29 @@ import { DatabaseService } from './features/database/database.service';
 import { getProcessEnv } from './utils/env';
 import { generateHash } from './features/auth/utils';
 import { OpenaiService } from './features/openai/openai.service';
+import { ChatModelService } from './features/chat-model/chat-model.service';
 
 @Injectable()
 export class AppService implements OnModuleInit {
   constructor(
     private readonly database: DatabaseService,
+    private readonly chatModelService: ChatModelService,
     private readonly openaiService: OpenaiService,
   ) {}
   async insertOpenAIModels() {
     const { data } = await this.openaiService.listModels();
     return Promise.all(
       data.data.map(async (model) => {
-        const existedModel = await this.database.openAIModel.findFirst({
-          where: {
-            id: model.id,
-          },
+        const existedModel = await this.chatModelService.model({
+          id: model.id,
         });
         if (!existedModel) {
           console.log('create new model', model.id);
-          return await this.database.openAIModel.create({
-            data: {
-              id: model.id,
-              object: model.object,
-              created: model.created,
-              owned_by: model.owned_by,
-            },
+          return await this.chatModelService.createModel({
+            id: model.id,
+            object: model.object,
+            created: model.created,
+            owned_by: model.owned_by,
           });
         }
         return existedModel;

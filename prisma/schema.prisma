@@ -10,8 +10,8 @@ datasource db {
 model PermissionsOnRoles {
   permissionId String
   roleId       String
-  permission   Permission @relation(fields: [permissionId], references: [id])
-  role         Role       @relation(fields: [roleId], references: [id])
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
 
   @@id([permissionId, roleId])
 }
@@ -19,8 +19,8 @@ model PermissionsOnRoles {
 model RolesOnUsers {
   userId Int
   roleId String
-  role   Role   @relation(fields: [roleId], references: [id])
-  user   User   @relation(fields: [userId], references: [id])
+  role   Role   @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, roleId])
 }

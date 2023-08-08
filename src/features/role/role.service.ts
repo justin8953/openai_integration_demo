@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
-import { Prisma, Role } from '@prisma/client';
+import { Permission, Prisma, Role } from '@prisma/client';
 
 @Injectable()
 export class RoleService {
@@ -30,6 +30,13 @@ export class RoleService {
   ): Promise<Role | null> {
     return this.database.role.findUnique({
       where: roleWhereUniqueInput,
+      include: {
+        permissions: {
+          select: {
+            permission: true,
+          },
+        },
+      },
     });
   }
   // Retrieve multiple roles
@@ -47,12 +54,26 @@ export class RoleService {
       cursor,
       where,
       orderBy,
+      include: {
+        permissions: {
+          select: {
+            permission: true,
+          },
+        },
+      },
     });
   }
   // Create a role
   async createRole(data: Prisma.RoleCreateInput): Promise<Role> {
     return this.database.role.create({
       data,
+      include: {
+        permissions: {
+          select: {
+            permission: true,
+          },
+        },
+      },
     });
   }
   // Update a role
@@ -61,15 +82,70 @@ export class RoleService {
     data: Prisma.RoleUpdateInput;
   }): Promise<Role> {
     const { where, data } = params;
+    const match = await this.database.role.findFirst({
+      where,
+    });
+    if (!match) {
+      throw new Error('Role not found');
+    } else if (match.default) {
+      throw new Error('Cannot update default role');
+    }
     return this.database.role.update({
       data,
       where,
+      include: {
+        permissions: {
+          select: {
+            permission: true,
+          },
+        },
+      },
     });
   }
   // Delete a role
   async deleteRole(where: Prisma.RoleWhereUniqueInput): Promise<Role> {
+    const match = await this.database.role.findFirst({
+      where,
+    });
+    if (!match) {
+      throw new Error('Role not found');
+    } else if (match.default) {
+      throw new Error('Cannot delete default role');
+    }
     return this.database.role.delete({
       where,
+    });
+  }
+
+  async addPermissionsToRole(roleId: string, permissions: Permission[]) {
+    return this.updateRole({
+      where: {
+        id: roleId,
+      },
+      data: {
+        permissions: {
+          create: permissions.map((permission) => ({
+            permission: {
+              connect: permission,
+            },
+          })),
+        },
+      },
+    });
+  }
+
+  async deletePermissionsToRole(roleId: string, permissions: Permission[]) {
+    return this.updateRole({
+      where: {
+        id: roleId,
+      },
+      data: {
+        permissions: {
+          deleteMany: permissions.map((permission) => ({
+            permissionId: permission.id,
+          })),
+        },
+      },
     });
   }
 }

@@ -94,7 +94,22 @@ export class RoleController {
       id: roleId,
     });
   }
-
+  // Get permissions by role
+  @UseGuards(JwtAuthGuard)
+  @Get(':roleId/permissions')
+  async getPermissionsToRole(
+    @Param('roleId') roleId: string,
+  ): Promise<Permission[]> {
+    return await this.roleService.permissions({
+      where: {
+        roles: {
+          some: {
+            roleId,
+          },
+        },
+      },
+    });
+  }
   // Add permissions to a role
   @UseGuards(JwtAuthGuard)
   @Post(':roleId/permissions')
@@ -117,21 +132,7 @@ export class RoleController {
         },
       },
     });
-
-    return this.roleService.updateRole({
-      where: {
-        id: roleId,
-      },
-      data: {
-        permissions: {
-          create: newPermission.map((permission) => ({
-            permission: {
-              connect: permission,
-            },
-          })),
-        },
-      },
-    });
+    return this.roleService.addPermissionsToRole(roleId, newPermission);
   }
 
   // Add permissions to a role
@@ -157,17 +158,6 @@ export class RoleController {
       },
     });
 
-    return this.roleService.updateRole({
-      where: {
-        id: roleId,
-      },
-      data: {
-        permissions: {
-          deleteMany: existedPermission.map((permission) => ({
-            permissionId: permission.id,
-          })),
-        },
-      },
-    });
+    return this.roleService.deletePermissionsToRole(roleId, existedPermission);
   }
 }

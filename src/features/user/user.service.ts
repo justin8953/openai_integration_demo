@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
-import { Prisma, User } from '@prisma/client';
+import { Prisma, Role, User } from '@prisma/client';
 
 @Injectable()
 export class UserService {
@@ -51,6 +51,47 @@ export class UserService {
   async deleteUser(where: Prisma.UserWhereUniqueInput): Promise<User> {
     return this.database.user.delete({
       where,
+    });
+  }
+
+  // Get roles by user
+  async roles(userId: number): Promise<Role[]> {
+    return this.database.role.findMany({
+      where: {
+        users: {
+          some: {
+            userId: userId,
+          },
+        },
+      },
+    });
+  }
+  async addRoles(userId: number, roles: Role[]): Promise<User> {
+    return this.updateUser({
+      where: {
+        id: userId,
+      },
+      data: {
+        roles: {
+          create: roles.map((role) => ({
+            role: { connect: { id: role.id } },
+          })),
+        },
+      },
+    });
+  }
+  async deleteRoles(userId: number, roles: Role[]): Promise<User> {
+    return this.updateUser({
+      where: {
+        id: userId,
+      },
+      data: {
+        roles: {
+          deleteMany: roles.map((role) => ({
+            roleId: role.id,
+          })),
+        },
+      },
     });
   }
 }
