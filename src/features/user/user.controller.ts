@@ -17,7 +17,8 @@ import { JwtAuthGuard } from '../auth/jwt.guard';
 import { RoleService } from '../role/role.service';
 import { DefaultUser } from '../role/role.constants';
 import { ChatModelService } from '../chat-model/chat-model.service';
-
+import { CheckPolicies, ReadPolicyHandler } from '../casl/policy.handler';
+import { PoliciesGuard } from '../casl/policy.guard';
 @Controller('users')
 export class UserController {
   constructor(
@@ -27,14 +28,16 @@ export class UserController {
   ) {}
 
   // Retrieve a single user
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, PoliciesGuard)
+  @CheckPolicies(new ReadPolicyHandler('User'))
   @Get(':userId')
   async retrieveUser(@Param('userId') userId: number): Promise<User> {
     return this.userService.user({ id: Number(userId) });
   }
 
   // Retrieve multiple users
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, PoliciesGuard)
+  @CheckPolicies(new ReadPolicyHandler('User'))
   @Get()
   async retrieveUsers(
     @Query()

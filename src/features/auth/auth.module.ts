@@ -7,7 +7,7 @@ import { LocalStrategy } from './local.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './jwt.strategy';
 import { DatabaseModule } from '../database/database.module';
-import { getProcessEnv, getSecret } from 'src/utils/env';
+import { getSecret } from '../utils';
 
 @Module({
   imports: [

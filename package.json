@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@casl/ability": "^6.5.0",
+    "@casl/prisma": "^1.4.1",
     "@elastic/elasticsearch": "^8.9.0",
     "@nestjs/common": "^10.0.0",
     "@nestjs/config": "^3.0.0",

@@ -3,10 +3,10 @@ import { DefaultRoles, SystemAdmin } from './features/role/role.constants';
 import { Permissions } from 'src/schema/role';
 
 import { DatabaseService } from './features/database/database.service';
-import { getProcessEnv } from './utils/env';
 import { generateHash } from './features/auth/utils';
 import { OpenaiService } from './features/openai/openai.service';
 import { ChatModelService } from './features/chat-model/chat-model.service';
+import { getAdminEmail, getAdminPassword } from './features/utils';
 
 @Injectable()
 export class AppService implements OnModuleInit {
@@ -94,13 +94,13 @@ export class AppService implements OnModuleInit {
     );
   }
   async insertDefaultUser() {
-    const email = getProcessEnv('ADMIN_EMAIL', 'admin@example.com');
+    const email = getAdminEmail();
     const user = await this.database.user.findUnique({
       where: { email: email },
     });
     if (!user) {
       console.debug('create admin user');
-      const password = getProcessEnv('ADMIN_PASSWORD', 'example');
+      const password = getAdminPassword();
       const passwordHash = await generateHash(password);
       const adminRole = await this.database.role.findFirst({
         where: {

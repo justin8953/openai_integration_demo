@@ -1,10 +1,10 @@
 import { DocumentBuilder } from '@nestjs/swagger';
-import { getProcessEnv } from './utils/env';
+import { getAppDescription, getAppName, getAppVersion } from './features/utils';
 
 export function newOpenAPIConfig() {
-  const title = getProcessEnv('APP_NAME', 'OpenAI Demo API');
-  const description = getProcessEnv('APP_DESCRIPTION', 'OpenAI Demo API');
-  const version = getProcessEnv('APP_VERSION', '1.0');
+  const title = getAppName();
+  const description = getAppDescription();
+  const version = getAppVersion();
 
   return new DocumentBuilder()
     .setTitle(title)

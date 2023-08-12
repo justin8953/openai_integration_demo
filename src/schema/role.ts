@@ -1,4 +1,8 @@
 import { z } from 'zod';
+export const ActionDto = z.enum(['read', 'write', 'update', 'delete'] as const);
+export type ActionDtoType = z.infer<typeof ActionDto>;
+export const ResourceDto = z.enum(['all', 'user', 'role', 'chat'] as const);
+export type ResourceDtoType = z.infer<typeof ResourceDto>;
 export const Permissions = [
   'all',
   'user.read',

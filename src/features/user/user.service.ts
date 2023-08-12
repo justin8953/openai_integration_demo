@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
-import { Prisma, Role, User } from '@prisma/client';
+import { Permission, Prisma, Role, User } from '@prisma/client';
 
 @Injectable()
 export class UserService {
@@ -53,7 +53,23 @@ export class UserService {
       where,
     });
   }
-
+  async permissions(userId: number): Promise<Permission[]> {
+    return this.database.permission.findMany({
+      where: {
+        roles: {
+          some: {
+            role: {
+              users: {
+                some: {
+                  userId: userId,
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+  }
   // Get roles by user
   async roles(userId: number): Promise<Role[]> {
     return this.database.role.findMany({
@@ -63,6 +79,9 @@ export class UserService {
             userId: userId,
           },
         },
+      },
+      include: {
+        permissions: true,
       },
     });
   }

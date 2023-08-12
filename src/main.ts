@@ -2,13 +2,12 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { newOpenAPIConfig } from './openapi';
 import { SwaggerModule } from '@nestjs/swagger';
-import { getProcessEnv } from './utils/env';
+import { isDevelopment } from './features/utils';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const isDevelopment =
-    getProcessEnv('NODE_ENV', 'development') === 'development';
-  if (isDevelopment) {
+  const isDev = isDevelopment();
+  if (isDev) {
     console.log('Running in development mode');
     const openAPIConfig = newOpenAPIConfig();
     const document = SwaggerModule.createDocument(app, openAPIConfig);
