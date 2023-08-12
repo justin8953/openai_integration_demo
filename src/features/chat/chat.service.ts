@@ -4,6 +4,8 @@ import { OpenaiService } from '../openai/openai.service';
 import { UserService } from '../user/user.service';
 import { DatabaseService } from '../database/database.service';
 import { Prisma } from '@prisma/client';
+import { isDevelopment } from '../utils';
+import { integer } from '@elastic/elasticsearch/lib/api/types';
 
 @Injectable()
 export class ChatService {
@@ -51,6 +53,35 @@ export class ChatService {
       },
     });
   }
+  async newChat(modelId: string, userId: integer) {
+    return await this.databaseService.chat.create({
+      data: {
+        model: modelId,
+        User: {
+          connect: {
+            id: userId,
+          },
+        },
+      },
+    });
+  }
+  async updateChat(modelId: string, chatId: string) {
+    return await this.databaseService.chat.update({
+      where: {
+        id: chatId,
+      },
+      data: {
+        model: modelId,
+      },
+    });
+  }
+  async deleteChat(chatId: string) {
+    return await this.databaseService.chat.delete({
+      where: {
+        id: chatId,
+      },
+    });
+  }
   async messages(userId: number, chatId: string) {
     const chat = await this.chat(userId, { id: chatId });
     return await this.elasticService.getChatMessages(chat.id);
@@ -60,31 +91,44 @@ export class ChatService {
       id: userId,
     });
     console.log('create new chat in database');
-    const chat = await this.databaseService.chat.create({
-      data: {
-        model: user.openAIModelId,
-        User: {
-          connect: {
-            id: user.id,
-          },
-        },
-      },
-    });
+    const chat = await this.newChat(user.openAIModelId, userId);
     console.log('create new chat in elastic');
     await this.elasticService.createNewChat(chat.id);
-    console.log('create new conversation in openai');
-    const { data } = await this.openaiService.createChatCompletion({
-      model: chat.model,
-      messages: [
-        {
-          role: 'user',
-          content: message,
-        },
-      ],
-    });
-    console.log('insert conversation to elastic');
-    data.choices.forEach(async (choice) => {
-      await this.elasticService.createNewMessage(chat.id, choice.message);
+    console.log('create new conversation in openai', message);
+    if (isDevelopment()) {
+      await this.elasticService.createNewMessage(chat.id, {
+        role: 'user',
+        content: message,
+      });
+    } else {
+      const { data } = await this.openaiService.createChatCompletion({
+        model: chat.model,
+        messages: [
+          {
+            role: 'user',
+            content: message,
+          },
+        ],
+      });
+      console.log('insert conversation to elastic');
+      data.choices.forEach(async (choice) => {
+        await this.elasticService.createNewMessage(chat.id, choice.message);
+      });
+    }
+  }
+  async deleteExistedChat(userId: number, chatId: string) {
+    const chat = await this.chat(userId, { id: chatId });
+    const isExisted = await this.elasticService.chatExists(chat.id);
+    if (isExisted) {
+      console.log('delete existed chat in elastic');
+      await this.elasticService.deleteChat(chat.id);
+    }
+    await this.deleteChat(chat.id);
+  }
+
+  async deleteExistedChats(userId: number, chatIds: string[]) {
+    chatIds.forEach(async (chatId) => {
+      await this.deleteExistedChat(userId, chatId);
     });
   }
 }

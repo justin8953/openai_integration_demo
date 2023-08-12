@@ -10,6 +10,14 @@ export function getElasticURL() {
   return getProcessEnv('ES_URL', 'http://localhost:9200');
 }
 
+export function getElasticUsername() {
+  return getProcessEnv('ES_USERNAME', '');
+}
+
+export function getElasticPassword() {
+  return getProcessEnv('ES_PASSWORD', '');
+}
+
 export function getOpenAIKey() {
   return getProcessEnv('OPENAI_KEY', '');
 }

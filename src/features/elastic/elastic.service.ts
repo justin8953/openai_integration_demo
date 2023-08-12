@@ -1,7 +1,11 @@
 import { Client } from '@elastic/elasticsearch';
 import { Injectable } from '@nestjs/common';
 import { OpenAIChatMessageDtoType } from 'src/schema';
-import { getElasticURL } from '../utils';
+import {
+  getElasticPassword,
+  getElasticURL,
+  getElasticUsername,
+} from '../utils';
 
 @Injectable()
 export class ElasticService extends Client {
@@ -10,10 +14,20 @@ export class ElasticService extends Client {
       node: getElasticURL(),
     });
   }
-
+  async chatExists(chatID: string) {
+    return await this.indices.exists({
+      index: `chat-${chatID}`,
+    });
+  }
+  async getChat(chatID: string) {
+    return await this.indices.get({
+      index: `chat-${chatID}`,
+    });
+  }
   async createNewChat(chatID: string) {
     await this.index({
       index: `chat-${chatID}`,
+      body: {},
     });
   }
   async deleteChat(chatID: string) {
