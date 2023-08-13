@@ -132,7 +132,7 @@ dist
 .pnp.*
 
 # crt csr key srl
-.crt 
-.csr
-.key
-.srl
+*.crt 
+*.csr
+*.key
+*.srl
