@@ -7,15 +7,19 @@ export function isDevelopment() {
 }
 
 export function getElasticURL() {
-  return getProcessEnv('ES_URL', 'http://localhost:9200');
+  return getProcessEnv('ES_URL', 'https://localhost:9200');
 }
 
 export function getElasticUsername() {
-  return getProcessEnv('ES_USERNAME', '');
+  return getProcessEnv('ES_USERNAME', 'elastic');
 }
 
 export function getElasticPassword() {
-  return getProcessEnv('ES_PASSWORD', '');
+  return getProcessEnv('ES_PASSWORD', 'openai@2023');
+}
+
+export function getElasticCertificatePath() {
+  return getProcessEnv('ES_CERT', '/cert/http_ca.crt');
 }
 
 export function getOpenAIKey() {
@@ -44,4 +48,12 @@ export function getAppDescription() {
 
 export function getAppVersion() {
   return getProcessEnv('APP_VERSION', '1.0');
+}
+
+export function getAppKeyPath() {
+  return getProcessEnv('APP_KEY_PATH', '/cert/app.key');
+}
+
+export function getAppCertPath() {
+  return getProcessEnv('APP_CERT_PATH', '/cert/app.crt');
 }

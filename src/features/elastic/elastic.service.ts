@@ -1,7 +1,9 @@
+import * as fs from 'fs';
 import { Client } from '@elastic/elasticsearch';
 import { Injectable } from '@nestjs/common';
 import { OpenAIChatMessageDtoType } from 'src/schema';
 import {
+  getElasticCertificatePath,
   getElasticPassword,
   getElasticURL,
   getElasticUsername,
@@ -12,6 +14,14 @@ export class ElasticService extends Client {
   constructor() {
     super({
       node: getElasticURL(),
+      auth: {
+        username: getElasticUsername(),
+        password: getElasticPassword(),
+      },
+      tls: {
+        ca: fs.readFileSync(getElasticCertificatePath()),
+        rejectUnauthorized: false,
+      },
     });
   }
   async chatExists(chatID: string) {

@@ -1,11 +1,16 @@
+import * as fs from 'fs';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { newOpenAPIConfig } from './openapi';
 import { SwaggerModule } from '@nestjs/swagger';
-import { isDevelopment } from './features/utils';
+import { getAppCertPath, getAppKeyPath, isDevelopment } from './features/utils';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const httpsOptions = {
+    key: fs.readFileSync(getAppKeyPath()),
+    cert: fs.readFileSync(getAppCertPath()),
+  };
+  const app = await NestFactory.create(AppModule, { httpsOptions });
   const isDev = isDevelopment();
   if (isDev) {
     console.log('Running in development mode');

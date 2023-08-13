@@ -130,3 +130,9 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# crt csr key srl
+.crt 
+.csr
+.key
+.srl
